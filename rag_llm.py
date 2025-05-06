@@ -29,7 +29,6 @@ class FinanceRAGSystem:
         self.load_llm()
 
     def load_index_and_metadata(self):
-        """Load FAISS index and metadata"""
         print(f"Loading FAISS index from {self.index_path}")
         self.index = faiss.read_index(str(self.index_path))
 
@@ -40,7 +39,6 @@ class FinanceRAGSystem:
         print(f"Index contains {self.index.ntotal} vectors")
 
     def load_llm(self):
-        """Load the local LLM model (example with Qwen)"""
         print(f"Loading LLM from {self.model_path}")
 
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -59,7 +57,6 @@ class FinanceRAGSystem:
         print("LLM loaded successfully")
 
     def retrieve(self, query, top_k=5):
-        """Retrieve relevant document chunks for a query"""
         query_embedding = self.embedding_model.encode(
             [query],
             convert_to_numpy=True,
@@ -79,7 +76,6 @@ class FinanceRAGSystem:
         return results
 
     def generate_context(self, results):
-        """Generate context string from retrieved results"""
         context_parts = []
         for i, result in enumerate(results):
             metadata = result["metadata"]
@@ -90,7 +86,6 @@ class FinanceRAGSystem:
         return "\n\n".join(context_parts)
 
     def create_prompt(self, query, context):
-        """Create a prompt for the LLM"""
         prompt = f"""You are a financial research assistant. Use ONLY the following documents to answer the question. 
 If the answer is not present, say "I don't know" and explain why.
 
@@ -103,7 +98,6 @@ Answer:"""
         return prompt
 
     def answer_question(self, query, top_k=5, max_length=512):
-        """Answer a question using the RAG approach"""
         results = self.retrieve(query, top_k=top_k)
 
         if not results:
@@ -139,7 +133,7 @@ Answer:"""
             "references": references
         }
 
-# ✅ 使用示例
+# Example Usage
 if __name__ == "__main__":
     rag_system = FinanceRAGSystem(
         index_path="data/index/finance_papers.index",
