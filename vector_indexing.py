@@ -24,7 +24,6 @@ class VectorIndexBuilder:
         print(f"Loaded embedding model: {self.model_name} with dimension {self.embedding_dim}")
 
     def load_processed_papers(self):
-        """Load all chunks"""
         json_files = list(self.processed_dir.glob("*.json"))
         all_chunks = []
         all_metadata = []
@@ -49,7 +48,6 @@ class VectorIndexBuilder:
         return all_chunks, all_metadata
 
     def create_embeddings(self, chunks):
-        """Generate a vector of text blocks"""
         embeddings = []
         batch_size = 32
 
@@ -65,14 +63,12 @@ class VectorIndexBuilder:
         return np.array(embeddings).astype('float32')
 
     def build_faiss_index(self, embeddings):
-        """Building the FAISS index"""
         index = faiss.IndexFlatL2(self.embedding_dim)
         index.add(embeddings)
         print(f"Built FAISS index with {index.ntotal} vectors")
         return index
 
     def save_index_and_metadata(self, index, metadata):
-        """Save index and meta information"""
         index_path = self.index_dir / "finance_papers.index"
         faiss.write_index(index, str(index_path))
 
@@ -83,7 +79,6 @@ class VectorIndexBuilder:
         print(f"Saved index to {index_path} and metadata to {metadata_path}")
 
     def build_index(self):
-        """Complete build process"""
         chunks, metadata = self.load_processed_papers()
         embeddings = self.create_embeddings(chunks)
         index = self.build_faiss_index(embeddings)
@@ -91,9 +86,9 @@ class VectorIndexBuilder:
 
         # Output example
         sample_idx = random.randint(0, len(metadata) - 1)
-        print("\n🎯 Sample metadata:")
+        print("\n Sample metadata:")
         print(json.dumps(metadata[sample_idx], indent=2, ensure_ascii=False))
-        print("📐 Sample embedding shape:", embeddings[sample_idx].shape)
+        print(" Sample embedding shape:", embeddings[sample_idx].shape)
 
         return index, metadata
 
