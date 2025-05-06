@@ -69,6 +69,6 @@ for category in q_fin_categories:
             print(f"Failed to download {paper_id}: {e}")
             continue
 
-    print(f"✅ Completed category: {category}")
+    print(f" Completed category: {category}")
 
 print("Download process completed.")
