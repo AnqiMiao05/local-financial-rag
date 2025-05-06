@@ -1,15 +1,15 @@
-# 📘 Financial RAG Assistant
+#  Financial RAG Assistant
 
 A local, privacy-preserving **Retrieval-Augmented Generation (RAG)** system tailored for **financial paper understanding and question answering**, built with:
 
-- 🧾 arXiv PDF scraping & preprocessing
-- 🔍 FAISS-based vector retrieval
-- 🤖 Local LLM inference (Mistral-7B)
-- 🌐 A modern HTML/JS front-end for local interaction
+-  arXiv PDF scraping & preprocessing
+-  FAISS-based vector retrieval
+-  Local LLM inference (Mistral-7B)
+-  A modern HTML/JS front-end for local interaction
 
 ---
 
-## 🚀 Features
+##  Features
 
 - Download and process over 1000+ arXiv quantitative finance papers
 - Chunk and embed texts with SentenceTransformers
@@ -19,7 +19,7 @@ A local, privacy-preserving **Retrieval-Augmented Generation (RAG)** system tail
 
 ---
 
-## 📦 Project Structure
+##  Project Structure
 
 ```bash
 RAG/
@@ -41,7 +41,7 @@ RAG/
 
 ---
 
-## 🔧 Environment Setup
+##  Environment Setup
 
 ```bash
 # 1. Create repo
@@ -54,7 +54,7 @@ conda activate rag
 # 3. Install dependencies
 ```
 
-### 🧱 Key dependencies
+###  Key dependencies
 
 | Package               | Version |
 | --------------------- | ------- |
@@ -74,7 +74,7 @@ conda activate rag
 | huggingface-hub       | ==0.30.1|
 ---
 
-## 🤗 Download Mistral-7B Locally
+##  Download Mistral-7B Locally
 
 This project uses **Mistral-7B-Instruct v0.2** from HuggingFace Hub. You need to download it manually:
 
@@ -184,7 +184,7 @@ This allows you to seamlessly add and update your personal knowledge base.
 
 ---
 
-### 💡 Notes:
+###  Notes:
 
 - English-language financial PDFs are recommended
 - Avoid using Chinese characters or spaces in filenames
