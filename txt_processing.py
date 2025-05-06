@@ -20,7 +20,6 @@ class FinancialPaperProcessor:
         )
 
     def extract_text_from_pdf(self, pdf_path):
-        """Extract PDF text and meta information using PyMuPDF"""
         try:
             doc = fitz.open(pdf_path)
             text_content = ""
@@ -48,7 +47,6 @@ class FinancialPaperProcessor:
             return "", {}
 
     def merge_external_metadata(self, pdf_path, metadata):
-        """Merge the .json meta information from the download phase (if present)"""
         meta_json_path = pdf_path.with_suffix(".json")
         if meta_json_path.exists():
             try:
@@ -60,7 +58,6 @@ class FinancialPaperProcessor:
         return metadata
 
     def process_paper(self, pdf_path):
-        """Processing a single paper: extracting text, generating chunks, and saving structured JSON"""
         paper_id = pdf_path.stem
         print(f"Processing paper: {paper_id}")
 
@@ -93,7 +90,6 @@ class FinancialPaperProcessor:
         return document
 
     def process_all_papers(self):
-        """Batch process all PDF files in a directory (support subdirectories)"""
         pdf_files = list(self.papers_dir.rglob("*.pdf"))
         print(f"Found {len(pdf_files)} papers to process")
 
