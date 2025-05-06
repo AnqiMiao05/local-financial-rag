@@ -17,6 +17,6 @@ def open_browser():
         print(f"Web page file not found: {html_path}")
 
 if __name__ == "__main__":
-    print("🚀 Starting the Financial RAG local service and web interface...")
+    print(" Starting the Financial RAG local service and web interface...")
     threading.Thread(target=open_browser).start()
     start_server()
