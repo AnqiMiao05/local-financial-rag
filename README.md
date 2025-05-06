@@ -102,17 +102,18 @@ Paste your token when prompted.
 huggingface-cli download mistralai/Mistral-7B-Instruct-v0.2 --local-dir ./models/mistral-7b-instruct --local-dir-use-symlinks False
 ```
 
-> 🧠 Tip: Total \~25GB, make sure you have enough space.
+>  Tip: Total \~25GB, make sure you have enough space.
 
 ---
 
-## 🔧 Preprocessing Pipeline
+##  Preprocessing Pipeline
 
 1. **Download papers**
 
 ```bash
 python data_collection.py
 ```
+After running this script, './data' will be generated automatically.
 
 2. **Extract and chunk PDFs**
 
@@ -128,7 +129,7 @@ python vector_indexing.py
 
 ---
 
-## 🖥️ Run Locally
+##  Run Locally
 
 ```bash
 python run_all.py
@@ -148,9 +149,9 @@ You can ask questions like:
 
 ---
 
-## 🔁 Updating Data & Custom PDF Import
+##  Updating Data & Custom PDF Import
 
-### 📥 Increase the Number of Downloads (No Need to Clear Old Data)
+###  Increase the Number of Downloads (No Need to Clear Old Data)
 
 To fetch more papers from arXiv, simply increase the `max_results` value in `data_collection.py`:
 
@@ -162,7 +163,7 @@ The system will automatically skip PDFs that already exist (based on filename), 
 
 ---
 
-### 📤 Custom PDF Upload (Manual Import)
+###  Custom PDF Upload (Manual Import)
 
 You can also manually add any financial-related PDFs to the following folder:
 
@@ -191,9 +192,9 @@ This allows you to seamlessly add and update your personal knowledge base.
 
 ---
 
-## ！ Notes
+## Notes
 
 - LLM loads via 4-bit quantization for memory efficiency (tested on RTX 4060)
-- Works offline after model download ✅
+- Works offline after model download
 - Supports interactive web UI with query history + citation tracing
 - You can use any models for vector indexing and LLM, based on your requirements and hardware.
