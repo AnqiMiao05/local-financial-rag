@@ -3,21 +3,30 @@ import os
 import json
 from pathlib import Path
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from config import config
+from logger import logger
 
 class FinancialPaperProcessor:
-    def __init__(self, papers_dir, output_dir):
-        self.papers_dir = Path(papers_dir)
-        self.output_dir = Path(output_dir)
+    def __init__(self, papers_dir=None, output_dir=None):
+        # 使用配置中的路径，如果没有提供参数
+        self.papers_dir = Path(papers_dir or config.get("data.papers_dir"))
+        self.output_dir = Path(output_dir or config.get("data.processed_dir"))
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         self.failed_files = []
 
+        # 从配置获取分块参数
+        chunk_size = config.get("processing.chunk_size", 1000)
+        chunk_overlap = config.get("processing.chunk_overlap", 200)
+
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=512,
-            chunk_overlap=50,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
             separators=["\n\n", "\n", ". ", " ", ""],
             length_function=len,
         )
+        
+        logger.info(f"Initialized processor with chunk_size={chunk_size}, chunk_overlap={chunk_overlap}")
 
     def extract_text_from_pdf(self, pdf_path):
         try:
@@ -42,7 +51,7 @@ class FinancialPaperProcessor:
             return text_content.strip(), metadata
 
         except Exception as e:
-            print(f"Error processing {pdf_path}: {e}")
+            logger.error(f"Error processing {pdf_path}: {e}")
             self.failed_files.append(str(pdf_path))
             return "", {}
 
@@ -54,12 +63,12 @@ class FinancialPaperProcessor:
                     external_meta = json.load(f)
                 metadata.update(external_meta)
             except Exception as e:
-                print(f"Failed to merge metadata for {pdf_path}: {e}")
+                logger.error(f"Failed to merge metadata for {pdf_path}: {e}")
         return metadata
 
     def process_paper(self, pdf_path):
         paper_id = pdf_path.stem
-        print(f"Processing paper: {paper_id}")
+        logger.info(f"Processing paper: {paper_id}")
 
         text_content, metadata = self.extract_text_from_pdf(pdf_path)
         if not text_content:
@@ -69,7 +78,7 @@ class FinancialPaperProcessor:
 
         # Generate chunks
         chunks = self.text_splitter.split_text(text_content)
-        print(f"Created {len(chunks)} chunks")
+        logger.info(f"Created {len(chunks)} chunks")
 
         document = {
             "paper_id": paper_id,
@@ -91,7 +100,7 @@ class FinancialPaperProcessor:
 
     def process_all_papers(self):
         pdf_files = list(self.papers_dir.rglob("*.pdf"))
-        print(f"Found {len(pdf_files)} papers to process")
+        logger.info(f"Found {len(pdf_files)} papers to process")
 
         processed_count = 0
         for pdf_file in pdf_files:
@@ -99,15 +108,12 @@ class FinancialPaperProcessor:
             if result:
                 processed_count += 1
 
-        print(f"Successfully processed {processed_count} papers")
+        logger.info(f"Successfully processed {processed_count} papers")
         if self.failed_files:
-            print(f"Failed to process {len(self.failed_files)} papers:")
+            logger.warning(f"Failed to process {len(self.failed_files)} papers:")
             for f in self.failed_files:
-                print(f"   - {f}")
+                logger.warning(f"   - {f}")
 
 if __name__ == "__main__":
-    processor = FinancialPaperProcessor(
-        papers_dir="data/papers",
-        output_dir="data/processed"
-    )
+    processor = FinancialPaperProcessor()
     processor.process_all_papers()

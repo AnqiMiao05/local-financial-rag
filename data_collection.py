@@ -4,28 +4,30 @@ from pathlib import Path
 import os
 import json
 from tqdm import tqdm
+from config import config
+from logger import logger
 
-# Define the q-fin categories
-q_fin_categories = [
-    "q-fin.CP",  # Computational Finance
-    "q-fin.EC",  # Economics
-    "q-fin.GN",  # General Finance
-    "q-fin.MF",  # Mathematical Finance
-    "q-fin.PM",  # Portfolio Management
-]
+# 创建必要的目录
+config.create_directories()
 
-# Set up the root download directory
-download_root = Path("data/papers")
-download_root.mkdir(parents=True, exist_ok=True)
+# 获取配置
+q_fin_categories = config.get("arxiv_categories")
+download_root = Path(config.get("data.papers_dir"))
+max_results = config.get("processing.max_results_per_category", 100)
+download_delay = config.get("processing.download_delay", 1.0)
+
+logger.info(f"Starting data collection with {len(q_fin_categories)} categories")
+logger.info(f"Download directory: {download_root}")
+logger.info(f"Max results per category: {max_results}")
 
 client = arxiv.Client(
-    page_size=100,
-    delay_seconds=3.0,
-    num_retries=3
+    page_size=config.get("processing.arxiv_page_size", 100),
+    delay_seconds=config.get("processing.arxiv_delay_seconds", 3.0),
+    num_retries=config.get("processing.arxiv_num_retries", 3)
 )
 
 for category in q_fin_categories:
-    print(f"\nProcessing category: {category}")
+    logger.info(f"Processing category: {category}")
     
     category_dir = download_root / category
     category_dir.mkdir(parents=True, exist_ok=True)
@@ -33,7 +35,7 @@ for category in q_fin_categories:
     # Create search query
     search = arxiv.Search(
         query=f"cat:{category}",
-        max_results=100,
+        max_results=max_results,
         sort_by=arxiv.SortCriterion.SubmittedDate
     )
     
@@ -48,7 +50,7 @@ for category in q_fin_categories:
             continue
 
         try:
-            print(f"Downloading {paper_id}: {result.title}")
+            logger.info(f"Downloading {paper_id}: {result.title}")
             result.download_pdf(dirpath=str(category_dir), filename=filename)
             
             meta = {
@@ -63,12 +65,12 @@ for category in q_fin_categories:
             with open(meta_path, "w", encoding="utf-8") as f:
                 json.dump(meta, f, ensure_ascii=False, indent=2)
                 
-            time.sleep(1)
+            time.sleep(download_delay)
             
         except Exception as e:
-            print(f"Failed to download {paper_id}: {e}")
+            logger.error(f"Failed to download {paper_id}: {e}")
             continue
 
-    print(f" Completed category: {category}")
+    logger.info(f"Completed category: {category}")
 
-print("Download process completed.")
+logger.info("Download process completed.")

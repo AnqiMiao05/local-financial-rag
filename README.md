@@ -28,9 +28,13 @@ RAG/
 │   ├── processed/         # JSON chunks
 │   └── index/             # FAISS index + metadata
 ├── models/                # Local model (Mistral-7B GGUF)
+├── logs/                  # System logs
 ├── rag_web/               # Frontend UI
 │   ├── index.html         # Simple web interface
 │   └── app.js             # JS interaction logic
+├── config.py              # Configuration management
+├── logger.py              # Logging system
+├── config.json            # User configuration file
 ├── data_collection.py     # Arxiv scraping
 ├── txt_processing.py      # PDF parsing & chunking
 ├── vector_indexing.py     # FAISS index builder
@@ -105,6 +109,39 @@ huggingface-cli download mistralai/Mistral-7B-Instruct-v0.2 --local-dir ./models
 >  Tip: Total \~25GB, make sure you have enough space.
 
 ---
+
+##  Configuration & Logging
+
+The system now includes comprehensive configuration management and logging:
+
+### Configuration
+- **config.json**: User-editable configuration file
+- **config.py**: Configuration management system
+- Supports environment-specific settings
+- Automatic directory creation
+
+### Logging
+- **logger.py**: Centralized logging system
+- **logs/**: Rotating log files with automatic backup
+- Performance monitoring and error tracking
+- Query history and system health monitoring
+
+### Key Configuration Options
+```json
+{
+  "processing": {
+    "max_results_per_category": 100,  // Papers per category
+    "download_delay": 1.0            // Delay between downloads
+  },
+  "rag": {
+    "top_k": 5,                      // Number of retrieved documents
+    "temperature": 0.7               // LLM creativity
+  },
+  "server": {
+    "port": 8000                     // Web server port
+  }
+}
+```
 
 ##  Preprocessing Pipeline
 
