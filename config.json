@@ -1,0 +1,52 @@
+{
+  "data": {
+    "papers_dir": "data/papers",
+    "processed_dir": "data/processed",
+    "index_dir": "data/index",
+    "index_file": "data/index/finance_papers.index",
+    "metadata_file": "data/index/finance_papers_metadata.json"
+  },
+  "models": {
+    "llm_path": "models/mistral-7b-instruct",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "device": "auto",
+    "load_in_4bit": true,
+    "torch_dtype": "float16"
+  },
+  "processing": {
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "max_results_per_category": 100,
+    "download_delay": 1.0,
+    "batch_size": 32,
+    "arxiv_page_size": 100,
+    "arxiv_delay_seconds": 3.0,
+    "arxiv_num_retries": 3
+  },
+  "rag": {
+    "top_k": 5,
+    "max_length": 512,
+    "temperature": 0.7,
+    "max_new_tokens": 1024,
+    "top_p": 0.9,
+    "repetition_penalty": 1.1
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "reload": true,
+    "cors_origins": ["*"]
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(levelname)s - %(message)s",
+    "file": "logs/rag_system.log"
+  },
+  "arxiv_categories": [
+    "q-fin.CP",
+    "q-fin.EC",
+    "q-fin.GN",
+    "q-fin.MF",
+    "q-fin.PM"
+  ]
+} 

@@ -7,21 +7,29 @@ from sentence_transformers import SentenceTransformer
 from pathlib import Path
 from tqdm import tqdm
 import random
+from config import config
+from logger import logger
 
 class VectorIndexBuilder:
-    def __init__(self, processed_dir, index_dir, model_name='sentence-transformers/all-MiniLM-L6-v2'):
-        self.processed_dir = Path(processed_dir)
-        self.index_dir = Path(index_dir)
+    def __init__(self, processed_dir=None, index_dir=None, model_name=None):
+        # 使用配置中的路径和模型，如果没有提供参数
+        self.processed_dir = Path(processed_dir or config.get("data.processed_dir"))
+        self.index_dir = Path(index_dir or config.get("data.index_dir"))
         self.index_dir.mkdir(parents=True, exist_ok=True)
 
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"Using device: {self.device}")
+        # 从配置获取设备设置
+        device_config = config.get("models.device", "auto")
+        if device_config == "auto":
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        else:
+            self.device = device_config
+        logger.info(f"Using device: {self.device}")
 
         # Load model
-        self.model_name = model_name
+        self.model_name = model_name or config.get("models.embedding_model")
         self.embedding_model = SentenceTransformer(self.model_name, device=self.device)
         self.embedding_dim = self.embedding_model.get_sentence_embedding_dimension()
-        print(f"Loaded embedding model: {self.model_name} with dimension {self.embedding_dim}")
+        logger.info(f"Loaded embedding model: {self.model_name} with dimension {self.embedding_dim}")
 
     def load_processed_papers(self):
         json_files = list(self.processed_dir.glob("*.json"))
@@ -42,14 +50,14 @@ class VectorIndexBuilder:
                         "text": chunk["text"]
                     })
             except Exception as e:
-                print(f"Error loading {json_file}: {e}")
+                logger.error(f"Error loading {json_file}: {e}")
 
-        print(f"Loaded {len(all_chunks)} chunks from {len(json_files)} papers")
+        logger.info(f"Loaded {len(all_chunks)} chunks from {len(json_files)} papers")
         return all_chunks, all_metadata
 
     def create_embeddings(self, chunks):
         embeddings = []
-        batch_size = 32
+        batch_size = config.get("processing.batch_size", 32)
 
         for i in tqdm(range(0, len(chunks), batch_size), desc="Generating embeddings"):
             batch = chunks[i:i+batch_size]
@@ -65,7 +73,7 @@ class VectorIndexBuilder:
     def build_faiss_index(self, embeddings):
         index = faiss.IndexFlatL2(self.embedding_dim)
         index.add(embeddings)
-        print(f"Built FAISS index with {index.ntotal} vectors")
+        logger.info(f"Built FAISS index with {index.ntotal} vectors")
         return index
 
     def save_index_and_metadata(self, index, metadata):
@@ -76,7 +84,7 @@ class VectorIndexBuilder:
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False)
 
-        print(f"Saved index to {index_path} and metadata to {metadata_path}")
+        logger.info(f"Saved index to {index_path} and metadata to {metadata_path}")
 
     def build_index(self):
         chunks, metadata = self.load_processed_papers()
@@ -86,16 +94,12 @@ class VectorIndexBuilder:
 
         # Output example
         sample_idx = random.randint(0, len(metadata) - 1)
-        print("\n Sample metadata:")
-        print(json.dumps(metadata[sample_idx], indent=2, ensure_ascii=False))
-        print(" Sample embedding shape:", embeddings[sample_idx].shape)
+        logger.info("Sample metadata:")
+        logger.info(json.dumps(metadata[sample_idx], indent=2, ensure_ascii=False))
+        logger.info(f"Sample embedding shape: {embeddings[sample_idx].shape}")
 
         return index, metadata
 
 if __name__ == "__main__":
-    index_builder = VectorIndexBuilder(
-        processed_dir="data/processed",
-        index_dir="data/index",
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
+    index_builder = VectorIndexBuilder()
     index, metadata = index_builder.build_index()
